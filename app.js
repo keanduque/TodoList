@@ -3,49 +3,39 @@
  * Author : Kean Duque
  * Description : Todo App MEN
  */
-
+require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const _ = require("lodash");
-const date = require(__dirname + "/public/date.js");
-const mongoose = require("mongoose");
-const { connectToDB, Collection } = require(__dirname + "/public/db.js");
+const date = require(__dirname + "/public/js/date.js");
+const { connectToDB } = require(__dirname + "/public/db.js");
+const { Todo, todoSchema, Page, pageSchema } = require("./models/todo");
 
 // init app & middleware
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
+
+mongoose.set("strictQuery", false);
 
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // connect db
-connectToDB((err) => {
-	if (!err) {
-		app.listen(port, () => {
-			console.log(`Server started successfully on port ${port}`);
+connectToDB()
+	.then(() => {
+		app.listen(PORT, () => {
+			console.log(`Listening on PORT ${PORT}`);
 		});
-	}
-});
-const todoSchema = new mongoose.Schema({
-	name: {
-		type: String,
-		required: [true, "Insert Todo List!"],
-	},
-});
-const Todo = mongoose.model("Todo", todoSchema);
+	})
+	.catch((err) => console.log(err));
 
 const defaultTodos = [
 	{ name: "Welcome to my TodoList!" },
 	{ name: "Press the (+) button to add new Todo" },
 	{ name: "Press Checkbox to Delete Todo" },
 ];
-
-const pageSchema = new mongoose.Schema({
-	name: String,
-	todos: [todoSchema],
-});
-const Page = mongoose.model("Page", pageSchema);
 
 app.get("/", (req, res) => {
 	const day = date.getDate();
