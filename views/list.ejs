@@ -1,0 +1,39 @@
+<%- include("partials/header")%>
+<div class="box-nav">
+	<ul>
+		<li><a href="/">Home</a></li>
+		<% navigation.forEach((nav) => { %>
+		<li><a href="/<%= nav.name %>"><%= nav.name %></a></li>
+		<% }); %>
+	</ul>
+</div>
+<div class="box" id="heading">
+	<h1><%= listTitle %></h1>
+</div>
+<div class="box">
+	<form class="item" action="/" method="post">
+		<input
+			type="text"
+			name="todoItem"
+			placeholder="Enter Your Todo List"
+			required
+			autofocus
+			autocomplete="off" />
+		<button type="submit" name="list" value="<%= listTitle %>">+</button>
+	</form>
+
+	<% newListItem.forEach((item) => { %>
+	<form action="/delete" method="post">
+		<div class="item">
+			<input
+				type="checkbox"
+				name="checkbox"
+				value="<%= item._id %>"
+				onchange="this.form.submit()" />
+			<input type="hidden" name="pageTitle" value="<%= listTitle %>" />
+			<p><%= item.name %></p>
+		</div>
+	</form>
+	<% }); %>
+</div>
+<%- include("partials/footer")%>
