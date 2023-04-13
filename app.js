@@ -37,10 +37,10 @@ const defaultTodos = [
 	{ name: "Press Checkbox to Delete Todo" },
 ];
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
 	const day = date.getDate();
 
-	Todo.find({}).then((items) => {
+	await Todo.find({}).then((items) => {
 		if (items.length === 0) {
 			InsertTodoMany(defaultTodos);
 			res.redirect("/");
@@ -56,10 +56,10 @@ app.get("/", (req, res) => {
 	});
 });
 
-app.get("/:TodoPage", (req, res) => {
+app.get("/:TodoPage", async (req, res) => {
 	const todoTitle = _.capitalize(req.params.TodoPage);
 
-	Page.findOne({ name: todoTitle })
+	await Page.findOne({ name: todoTitle })
 		.then((page) => {
 			if (!page) {
 				console.log("Page Not Exist, preparing to add..");
@@ -91,7 +91,7 @@ app.get("/about", (req, res) => {
 	res.render("about");
 });
 
-app.post("/", (req, res) => {
+app.post("/", async (req, res) => {
 	const itemName = req.body.todoItem;
 	const day = date.getDate().split(" ")[0];
 	const listTitle = req.body.list.split(" ")[0];
@@ -101,11 +101,11 @@ app.post("/", (req, res) => {
 	});
 
 	if (listTitle === day) {
-		item.save();
+		await item.save();
 		console.log(item.name + " Successfully Added...");
 		res.redirect("/");
 	} else {
-		Page.findOne({ name: listTitle })
+		await Page.findOne({ name: listTitle })
 			.then((pageFound) => {
 				pageFound.todos.push(item);
 				pageFound.save();
@@ -116,16 +116,16 @@ app.post("/", (req, res) => {
 	}
 });
 
-app.post("/delete", (req, res) => {
+app.post("/delete", async (req, res) => {
 	const itemId = req.body.checkbox;
 	const day = date.getDate().split(" ")[0];
 	const pageName = req.body.pageTitle.split(" ")[0];
 
 	if (pageName === day) {
-		DeleteTodo({ _id: itemId });
+		await DeleteTodo({ _id: itemId });
 		res.redirect("/");
 	} else {
-		Page.findOneAndUpdate(
+		await Page.findOneAndUpdate(
 			{ name: pageName },
 			{ $pull: { todos: { _id: itemId } } }
 		)
@@ -138,7 +138,7 @@ app.post("/delete", (req, res) => {
 });
 
 async function InsertTodoMany(list) {
-	Todo.insertMany(list)
+	await Todo.insertMany(list)
 		.then(() => {
 			console.log("datas successfully inserted...");
 			mongoose.disconnect();
@@ -146,13 +146,13 @@ async function InsertTodoMany(list) {
 		.catch((err) => console.log(err));
 }
 async function InsertTodo(list) {
-	Todo(list)
+	await Todo(list)
 		.save()
 		.then(() => console.log("New Todo Succesfully Added!"))
 		.catch((err) => console.log(err));
 }
 async function DeleteTodo(list) {
-	Todo.findByIdAndRemove(list)
+	await Todo.findByIdAndRemove(list)
 		.then(() => {
 			console.log("Successfully Deleted");
 		})

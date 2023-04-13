@@ -1,7 +1,3 @@
-##Project-wide
-secrets.txt
-.DS_Store
-
 # Logs
 logs
 *.log
